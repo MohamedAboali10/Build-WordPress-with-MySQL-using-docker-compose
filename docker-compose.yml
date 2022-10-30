@@ -1,0 +1,42 @@
+version : "3"  #version for docker compose
+services:       # services=container
+  mysql_database:    #name of the container the you put it`s specs
+    image: mysql
+    restart: always   #if this container closed restart it always
+    environment: 
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: wp_db
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: 1234
+    volumes:
+      - mysql:/var/lib/mysql
+      #word press on apache
+  wordpress:     #container name
+    depends_on:      #this command to confirm this container willnot start with starting of another container
+      - mysql_database
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8000:80"
+    environment: 
+      WORDPRESS_DB_HOST: mysql_database:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: 1234
+      WORDPRESS_DB_NAME: wp_db
+    volumes:
+      ["./:/var/www/html"] 
+  #image for php myadmin
+  phpmyadmin:
+    depends_on:
+      - mysql_database
+    image: phpmyadmin/phpmyadmin      
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMAHOST: mysql_database
+      MYSQL_ROOT_PASSWORD: 1234
+      
+#top level volumes
+volumes:
+  mysql: {}
